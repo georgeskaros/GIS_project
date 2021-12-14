@@ -1,0 +1,98 @@
+pireus 37°56'50.82"N, 23°38'13.49"E
+	23.633337 37.940558 
+
+
+range of antena 37km made 
+
+
+SELECT ST_GeomFromText('POINT(23.633337 37.940558 )', 4326);
+
+SELECT ST_Buffer(ST_Transform(ST_GeomFromText('POINT(23.633337 37.940558)', 4326), 2100),
+		37000);
+
+create index idx on gis_feb using gist(geom);
+create index idx on gis_mar using gist(geom);
+
+
+DELETE
+FROM gis_feb
+where not ST_Intersects(geom, ST_Buffer(CAST(ST_GeomFromText('POINT(23.633337 37.940558)', 4326)AS geography),37000))
+
+DELETE
+FROM gis_mar
+where not ST_Intersects(geom, ST_Buffer(CAST(ST_GeomFromText('POINT(23.633337 37.940558)', 4326)AS geography),37000))
+
+DELETE
+FROM gis_all
+where not ST_Intersects(geom, ST_Buffer(CAST(ST_GeomFromText('POINT(23.633337 37.940558)', 4326)AS geography),37000))
+
+/////////////////////////////////
+create index idx on periferies using gist(geom);
+
+Create table martios as
+	select ma.t, ma.mmsi,,ma.lon,ma.lat,ma.turn,ma.speed,ma.course, ma.geom
+	from gis_mar as ma, (select geom from periferies where id=13) as per 
+	where not st_intersects(per.geom, st_transform(ma.geom,2100))
+    
+Create table fevrou as
+	select fe.t, ma.mmsi,fe.lon,fe.lat,fe.turn,fe.speed,fe.course,fe.geom
+	from gis_feb as fe, (select geom from periferies where id=13) as per 
+	where not st_intersects(per.geom, st_transform(fe.geom,2100))
+    
+Create table all_data as
+	select al.t, al.mmsi,al.lon,al.lat,al.turn,al.speed,al.course,al.geom
+	from gis_all as al, (select geom from periferies where id=13) as per 
+	where not st_intersects(per.geom, st_transform(al.geom,2100))
+
+ALTER SYSTEM SET shared_buffers to '2GB'
+ALTER SYSTEM SET max_parallel_workers_per_gather = 30;
+SELECT pg_reload_conf();
+
+
+delete 
+from martios
+where mmsi in(select mmsi 
+	         from (select mmsi ,count(*)as a
+		   from martios
+		   group by mmsi
+		   order by 1) as b
+	          where b.a<10)
+
+delete 
+from fevrou
+where mmsi in(select mmsi 
+	         from (select mmsi ,count(*)as a
+		   from fevrou
+		   group by mmsi
+		   order by 1) as b
+	          where b.a<10)
+
+delete 
+from all_data
+where mmsi in(select mmsi 
+	         from (select mmsi ,count(*)as a
+		   from all_data
+		   group by mmsi
+		   order by 1) as b
+	          where b.a<10)
+
+
+SELECT ST_Buffer(ST_Transform(geom, 2100),2000),* FROM ports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

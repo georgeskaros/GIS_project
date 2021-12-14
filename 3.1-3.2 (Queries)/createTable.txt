@@ -1,0 +1,117 @@
+///Creating 3 tables , one for February ,one for March and one with both months///
+
+CREATE TABLE gis_feb
+(
+    t double precision,
+    type integer,
+    mmsi integer,
+    status integer,
+    lon double precision,
+    lat double precision,
+    heading integer,
+    turn double precision,
+    speed double precision,
+    course double precision
+);
+
+CREATE TABLE gis_mar
+(
+    t double precision,
+    type integer,
+    mmsi integer,
+    status integer,
+    lon double precision,
+    lat double precision,
+    heading integer,
+    turn double precision,
+    speed double precision,
+    course double precision
+);
+
+CREATE TABLE gis_all
+(
+    t double precision,
+    type integer,
+    mmsi integer,
+    status integer,
+    lon double precision,
+    lat double precision,
+    heading integer,
+    turn double precision,
+    speed double precision,
+    course double precision
+);
+
+///Adding the geom columnn ///
+
+ALTER TABLE gis_feb ADD COLUMN geom geometry(Point, 4326);
+UPDATE gis_feb SET geom = ST_SetSRID(ST_MakePoint(lon, lat), 4326);
+
+ALTER TABLE gis_mar ADD COLUMN geom geometry(Point, 4326);
+UPDATE gis_mar SET geom = ST_SetSRID(ST_MakePoint(lon, lat), 4326);
+
+ALTER TABLE gis_all ADD COLUMN geom geometry(Point, 4326);
+UPDATE gis_all SET geom = ST_SetSRID(ST_MakePoint(lon, lat), 4326);
+
+
+//table for the points of ports
+Create table ports(
+	port_name varchar(40),
+	latitude double precision,
+	longitude double precision )
+
+INSERT INTO ports VALUES ('Pachi terminal' , '37.971672' , '23.381449')
+, ('Lavrion' , '37.710283' ,'24.059846')
+, ('Piraeus port' ,'37.939022' ,'23.624630')
+, ('Porti rafti'  , '37.882044' , '24.025823')
+, ('Limin Irakleous' , '37.957279' , '23.604560')
+, ('Cosco' , '37.956391' , '23.587058')
+, ('Perama' , '37.963990' , '23.553562')
+, ('Salamis island' , '37.961669' , '23.494404')
+, ('Navstathmos' , '37.964616' , '23.530594')
+, ('Elevsina oil terminal' , '38.042662' , '23.524715')
+, ('Zeas-mikrolimano' , '37.937831' , '23.652953')
+, ('Floisvos' , '37.930540' , '23.683022')
+, ('Skaramagkas' , '38.008984' , '23.593296')
+, ('Aspropirgos' , ' 38.025625' , '23.593175')
+, ('Alimou' , '37.913068' , '23.703484')
+
+
+ALTER TABLE ports ADD COLUMN geom geometry(Point, 4326);
+UPDATE ports SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326);
+
+//there is a table to import data after the trimming 
+CREATE TABLE trimmed
+(
+    ts double precision,
+    mmsi integer,
+    lon double precision,
+    lat double precision,
+    turn double precision,
+    speed double precision,
+    course double precision,
+    time_diff double precision,
+    velocity double precision,
+    bearing double precision,
+    acceleration double precision
+);
+
+
+CREATE TABLE curated
+(
+    ts double precision,
+    mmsi integer,
+    lon double precision,
+    lat double precision,
+    turn double precision,
+    speed double precision,
+    course double precision,
+    time_diff double precision,
+    velocity double precision,
+    bearing double precision,
+    acceleration double precision,
+    traj_id double precision,
+    label double precision,
+    trip_id double precision 
+);
+
